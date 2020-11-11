@@ -1,0 +1,36 @@
+- hosts: localhost
+  connection: local
+  tasks:
+   - name: backup html files
+     archive:
+       path: /var/www/html
+       dest: "/var/www/html/goodpinsentkeelor/web/wordpress-bck-{{ansible_date_time.iso8601_basic_short}}.tgz"
+       format: gz
+     become: true
+
+    - name: get latest wordpress
+      unarchive:
+        src: /home/miteshshah/Desktop/test_php/wordpress1.zip
+        dest: /tmp/wordpress/
+        remote_src: yes
+      become: true
+
+    - name: Wait until wordpress has been downloaded
+      wait_for:
+        path: /tmp/wordpress/index.php
+        state: present
+
+    - name: unzip wordpress to website
+      shell: /bin/cp -a /tmp/wordpress/.  /var/www/html/goodpinsentkeelor/web/
+      become: true
+
+    - name: delete tmp wordpress
+      file:
+        path: /tmp/wordpress
+        state: absent
+      become: true
+
+
+    - name: simple check website
+      uri:
+        url: https://www.petersplanet.nl
